@@ -1,0 +1,80 @@
+<link rel="stylesheet" href="/css/home.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.2/socket.io.js" integrity="sha512-VJ6+sp2E5rFQk05caiXXzQd1wBABpjEj1r5kMiLmGAAgwPItw1YpqsCCBtq8Yr1x6C49/mTpRdXtq8O2RcZhlQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js" integrity="sha512-rCZdHNB0AePry6kAnKAVFMRfWPmUXSo+/vlGtrOUvhsxD0Punm/xWbEh+8vppPIOzKB9xnk42yCRZ5MD/jvvjQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<div class="master">
+<div class="conecteds">
+
+</div>
+<div class="main">
+    <div class="me">
+
+    </div>
+    <div class="contMensage">
+
+    </div>
+    <div class="controles">
+        <div class="input">
+        <div class="cantInputL"></div>
+        <input type="text" id="my-text" autocomplete="off">
+        <div class="cantInputR"></div>
+        </div>
+        <button>enviar</button>
+    </div>
+</div>
+</div>
+<script>
+    let socket = io(window.location.href);
+    let me = {
+        name:'undefined', 
+        id:socket.id,
+        color:'#bbb',
+        digit:false
+    }
+    let allOnline = [];
+    //recebendo valores de todas as pessoas online
+    socket.on("atualizaConection",pesOnline=>{
+        allOnline = pesOnline;
+        console.log("atualizaConection");
+         $('div.conecteds').html('')
+        for(p of allOnline){
+            console.log("adicionando pessoa")
+            $('div.conecteds').append(`
+            <div clas="" style="display:flex;align-items:center">
+            <div class="circle" style="width:50px;height:50px;background:`+p.color+`""></div>
+            <h1>`+p.name+`</h1>
+            </div>
+            `);
+        }
+
+    })
+
+    //adicionando meus dados
+    $('div.me').html(`<input type="color" name="" id="my-color" value="`+me.color+`"><input type="text" id="my-name"value="`+me.name+`">`);
+    $("#my-color").val(me.color)
+    let addAtuaName = false;
+    function draw(){
+        $('main').html('')
+        //console.log("verificando")
+        if(($("#my-name").val()!=me.name||$("#my-color").val()!=me.color)&& addAtuaName == false){
+            console.log("adicionando")
+            addAtuaName = true;
+            $('.main').append(`<div class="atuaName">
+                <h2>atualizar dados</h2>
+                <button onclick="atualizarName()"><ion-icon name="checkmark-outline"></ion-icon></button>
+            </div>`)
+
+        }
+    }
+    function atualizarName(){
+           addAtuaName = false;
+           console.log("atualizar nome")
+           document.querySelector('.atuaName').remove(); 
+           me.name = $('#my-name').val();
+           me.color = $('#my-color').val();
+           socket.emit("atuaName",me)
+    }
+</script>
