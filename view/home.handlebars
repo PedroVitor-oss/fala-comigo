@@ -22,7 +22,7 @@
         <input type="text" id="my-text" autocomplete="off">
         <div class="cantInputR"></div>
         </div>
-        <button>enviar</button>
+        <button onclick="eviarmensagem()">enviar</button>
     </div>
 </div>
 </div>
@@ -35,30 +35,53 @@
         digit:false
     }
     let allOnline = [];
+    let allMensage = [];
     //recebendo valores de todas as pessoas online
     socket.on("atualizaConection",pesOnline=>{
         allOnline = pesOnline;
         console.log("atualizaConection");
-         $('div.conecteds').html('')
+         $('div.conecteds').html('<h1 style="color:#87BBFF">pessoas online</h1>')
         for(p of allOnline){
             console.log("adicionando pessoa")
+            let digitando = ``;
+            if(p.digit == true){
+                digitando = `<p style="margin-top:40px;">Digitando</p>`
+            }
             $('div.conecteds').append(`
             <div clas="" style="display:flex;align-items:center">
-            <div class="circle" style="width:50px;height:50px;background:`+p.color+`""></div>
+            <div class="circle" style="margin-right:10px;width:50px;height:50px;background:`+p.color+`""></div>
             <h1>`+p.name+`</h1>
+            `+digitando+`
             </div>
+
             `);
         }
 
     })
-
+    //recebendo todas as mensagens
+    socket.on("carMensage", mensagens=>{
+        allMensage = mensagens;
+        $("div.contMensage").html('');
+        for(m of allMensage){
+            $("div.contMensage").append(`
+            <div>
+            <h3 style="color: `+m.color+`;
+                       margin: 0;
+                       border-bottom: 2px solid `+m.color+`;
+                       width: 200px;">`+m.autor+`</h3>
+            <p>`+m.text+`</p>
+            </div>
+            `)
+        }
+    })
     //adicionando meus dados
     $('div.me').html(`<input type="color" name="" id="my-color" value="`+me.color+`"><input type="text" id="my-name"value="`+me.name+`">`);
     $("#my-color").val(me.color)
     let addAtuaName = false;
+     let valorAntigo = $("input#my-text").val();
     function draw(){
         $('main').html('')
-        //console.log("verificando")
+        //atualizar nome
         if(($("#my-name").val()!=me.name||$("#my-color").val()!=me.color)&& addAtuaName == false){
             console.log("adicionando")
             addAtuaName = true;
@@ -68,6 +91,26 @@
             </div>`)
 
         }
+   
+        //esta digitando
+       if($("input#my-text").val() != valorAntigo){
+        valorAntigo = $("input#my-text").val();
+        let estarDigt = valorAntigo!='';
+        me.digit = estarDigt;
+        console.log("novo valor de texto",estarDigt)
+        socket.emit("digitando",me);
+       }
+    }
+    function eviarmensagem(){
+        let my_text = $("input#my-text").val();
+        console.log("eviar mensagem ",my_text)
+        let mensagem = {
+            autor:me.name,
+            text:my_text,
+            color:me.color
+        }
+        socket.emit("sendMensage",mensagem);
+        $("input#my-text").val('');
     }
     function atualizarName(){
            addAtuaName = false;

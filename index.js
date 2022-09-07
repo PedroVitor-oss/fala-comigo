@@ -19,6 +19,7 @@ app.use(express.static(path.join(__dirname,'public')));
 app.get('/',(req,res)=>{
     res.render('home');
 })
+let mensagens = []
 let pesOnline = []
 io.on('connection',socket=>{
     socket.people = {
@@ -29,6 +30,7 @@ io.on('connection',socket=>{
     }
     pesOnline.push(socket.people);
     io.emit("atualizaConection",pesOnline);
+    io.emit("carMensage",mensagens);
     
     socket.on("atuaName",me=>{
         console.log("atualizar name para ",me)
@@ -42,6 +44,21 @@ io.on('connection',socket=>{
         io.emit("atualizaConection",pesOnline);
     })
 
+    socket.on("digitando",me=>{
+        console.log(`pessoa ${me.name} esta digitando `)
+        socket.people.digit = me.digit;
+        for(p of pesOnline){
+            if(p.id == socket.id){
+                p = socket;
+            }
+        }
+        io.emit("atualizaConection",pesOnline);
+    })
+
+    socket.on("sendMensage",mensagen =>{
+        mensagens.push(mensagen);
+        io.emit("carMensage",mensagens);
+    })
 
 
     socket.on("disconnect",()=>{

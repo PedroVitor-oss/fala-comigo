@@ -85,13 +85,20 @@ div.main div.me input{
 
 }
 div.main div.contMensage{
+    overflow-y: scroll;
     display: flex;
     flex-direction: column;
-    background:gray;
+    justify-content: flex-end;
+
+    width: 57%;
+    height: 80%;
+    
+    background: gray;
     border-radius: 20px;
-    width:60%;
-    height:80%;
-    margin:10px 40px;
+    padding: 10px;
+    
+    margin: 10px 40px;
+    
 }
 div.main div.controles{
     width:60%;
